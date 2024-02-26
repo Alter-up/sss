@@ -45,7 +45,7 @@ def upload():
 
 # Route for dashboard
 @app.route('/faucet', methods=['POST','GET'])
-def dashboard():
+def faucet():
     code = request.args.get('code')
     access_token = DiscordOauth.get_access_token(code)
 
