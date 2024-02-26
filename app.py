@@ -66,7 +66,7 @@ def dashboard():
     response = requests.put(url, headers=headers, json=data)
 
    
-    return render_template('dashboard.html', render_user_avatar=f'https://cdn.discordapp.com/avatars/{id}/{avatar}.png',
+    return render_template('faucet.html', render_user_avatar=f'https://cdn.discordapp.com/avatars/{id}/{avatar}.png',
                            render_username=f'{username}#{usertag}', render_guild=user_guild_object)
 
 
