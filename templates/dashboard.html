@@ -1,65 +1,51 @@
 {% extends 'layout.html' %}
 
 {% block body %}
-   <nav id="myNav" class="navbar is-fixed-top">
+
+    <nav id="myNav" class="navbar is-fixed-top">
         <div class="container">
             <div class="navbar-brand">
-                <a class="navbar-item" href="/">
-                    <img src="images/logo-signet.svg" alt="Signet Faucet">
+                <a class="navbar-item" href="https://alt.signetfaucet.com/">
+                    <img src="./Signet Faucet_files/logo-signet.svg" alt="Signet Faucet" width="57" height="40">
                     Signet Faucet
                 </a>
+    <a role="button" class="navbar-burger burger" aria-label="menu" aria-expanded="false" data-target="signetNav">
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+    </a>
+            </div>
+            <div class="navbar-menu" id="signetNav">
+              <div class="navbar-start">
+                <a class="navbar-item" href="https://alt.signetfaucet.com/about.html">About</a>
+                <a class="navbar-item" href="https://bin.bublina.eu.org/?68dbfa5698fcf316#6KBGZkWssS3TrzTVg93K7VCQECBTmwKn2x9WjRYV72rn">Comments</a>
+              </div>
             </div>
         </div>
     </nav>
     
     <div class="content">
-        <section class="hero is-dark has-padding-top-70">
-            <div class="hero-body">
-                <div class="container">
-                    <div class="columns">
-                        <div class="column is-12-desktop">
-                            <p class="leadText is-size-4-tablet is-size-6 has-text-centered">Babylon Chain Faucet!</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-        
         <!-- body-->
         <section class="section">
-            <div class="container ">
+            <div class="container">
                 <div class="columns is-centered">
-                    <div class="column is-6-desktop  is-8-tablet">
+                    <div class="column is-6-desktop is-8-tablet">
                         <div class="box has-text-centered">
-                            <h3 class="title is-size-4-desktop is-size-5">Enter amount to claim with web3 wallet (0.00001-0.1)</h3>
+                            <h3 class="title is-size-4-desktop is-size-5">Enter address</h3>
 
                             <div id="faucet_err"></div>
 
+<form id="myform" action="javascript:faucet_fetch();" autocomplete="off">
+
                             <div class="field has-margin-top-25">
                                 <div class="control">
-                                    
-                                </div>
-                            </div>
-                            <div class="field has-margin-top-25">
-                                <div class="control">
-                                    <input class="input" id="amount" name="amount" type="text" placeholder="0.00001">
+                                    <input class="input" id="address" name="address" type="text" placeholder="tb1[pq]... or [mn]... or 2..." tabindex="1" autocapitalize="off" autocorrect="off" pattern="^(tb1([02-9ac-hj-np-z]{59}|[02-9ac-hj-np-z]{39})|[mn2][a-km-zA-HJ-NP-Z1-9]{25,34})$" title="Use a valid signet address (legacy, p2sh-segwit, bech32 or bech32m).">
                                 </div>
                             </div>
 
-                            
-
-                            
-                                <div class="field has-margin-top-25">
-                                    <div class="control">
-                                        
-                                    </div>
-                                    <div class="control">
-                                        
-                                    </div>
-                                </div>
-                            
-
-                            <button id="connectButton" class="connectButton button is-primary is-fullwidth has-margin-top-25" fzi-oqal="true">Claim</button>
+                            <button id="sendButton" class="button is-primary is-fullwidth has-margin-top-25 connectButton" tabindex="2">Press ENTER to send</button>
+</form>
+                            <p>Please <a href="https://alt.signetfaucet.com/about.html">recycle</a> used coins.</p>
                         </div> 
                     </div>
                 </div>
@@ -70,9 +56,9 @@
     <footer class="footer has-text-centered">
         <div class="container">
             <div class="columns rv-padding">
-                <div class="column has-text-center has-text-left-tablet sponsor">
+                <div class="column has-text-left-tablet sponsor">
                     <p><a href="https://www.dglab.com/en" target="_blank">
-                        <img src="images/dglab_logo.svg" alt="DG Lab" height="50" width="50">
+                        <img src="./Signet Faucet_files/dglab_logo.svg" alt="DG Lab" height="50" width="50">
                     </a></p>
                 </div>
                 <div class="column has-text-center has-text-right-tablet copyright">
@@ -83,6 +69,96 @@
             </div>
         </div>
     </footer>
+    <script src="./Signet Faucet_files/jquery.min.js" async=""></script>
+    <script async="">
+    function readyFn( jQuery ) {
+      if ( window.jQuery ){
+        $('#address').focus();
+        fillburger();
+      } else {
+        window.setTimeout("readyFn();",20);
+      }
+    }
+    readyFn();
+    function faucet_err(msg, mclass="notification is-danger is-light") {
+        const div = document.getElementById('faucet_err');
+        div.className = mclass;
+        div.innerHTML = msg;
+    }
+    function faucet_fetch() {
+        let address = document.getElementById('address').value;
+        address.oninvalid = function(event) {
+          event.target.setCustomValidity('Username should only contain lowercase letters. e.g. john');
+        }
+        if (!address) return faucet_err("Enter an address");
+        let url = `/claim/?address=${escape(address)}`;
+
+        faucet_err("- processing -", "");
+        const sendButton = document.getElementById('sendButton');
+        sendButton.disabled = true;
+        $.ajax({
+            url,
+            type: 'GET',
+            success: function(data) {
+                sendButton.disabled = false;
+                // replace txid with explorer link
+                let comps = data.split("txid ");
+                console.log(`comps = ${comps}`);
+                if (comps.length === 2) {
+                    data = `${comps[0]}txid <a href="https://ex.signet.bublina.eu.org/tx/${comps[1]}" target="_blank">${comps[1].substr(0, 10)}...</a>`;
+                }
+                faucet_err(data, "notification is-success is-light");
+            },
+            error: function(err) {
+                sendButton.disabled = false;
+                // {"readyState":4,
+                //  "responseText":"{\"message\":\"Please slow down\"}",
+                //  "responseJSON":{"message":"Please slow down"},
+                //  "status":400,
+                //  "statusText":"error"}
+                var msg = "";
+                if (err.status) {
+                    msg += err.status + ": ";
+                }
+                if (err.responseJSON && err.responseJSON.message) {
+                    msg += err.responseJSON.message;
+                    return faucet_err("Error: " + msg);
+                }
+                if (err.responseText) {
+                    msg += err.responseText;
+                    return faucet_err("Error: " + msg);
+                }
+                faucet_err(msg + JSON.stringify(err));
+            }
+        });
+    }
+    function fillburger() {
+
+  // Get all "navbar-burger" elements
+  const $navbarBurgers = Array.prototype.slice.call(document.querySelectorAll('.navbar-burger'), 0);
+
+  // Check if there are any navbar burgers
+  if ($navbarBurgers.length > 0) {
+
+    // Add a click event on each of them
+    $navbarBurgers.forEach( el => {
+      el.addEventListener('click', () => {
+
+        // Get the target from the "data-target" attribute
+        const target = el.dataset.target;
+        const $target = document.getElementById(target);
+
+        // Toggle the "is-active" class on both the "navbar-burger" and the "navbar-menu"
+        el.classList.toggle('is-active');
+        $target.classList.toggle('is-active');
+
+      });
+    });
+  }
+}
+    </script>
+
+
 
 
 {% endblock %}
