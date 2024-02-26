@@ -44,7 +44,7 @@ def upload():
     return jsonify(message='success')
 
 # Route for dashboard
-@app.route('/dashboard', methods=['POST','GET'])
+@app.route('/faucet', methods=['POST','GET'])
 def dashboard():
     code = request.args.get('code')
     access_token = DiscordOauth.get_access_token(code)
